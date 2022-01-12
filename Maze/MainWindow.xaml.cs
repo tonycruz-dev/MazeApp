@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -21,13 +24,13 @@ namespace Maze
         public MainWindow()
         {
             InitializeComponent();
-            _mazeSpaces = MazeHelpers.GetBlancWalls();
+
+            //_mazeSpaces = MazeHelpers.GetBlancWalls();
+            _mazeSpaces = LoadMazeJson();
             int mazeRows = 15;
             int mazeCol = 15;
             emptywalls.Content = $"Empty Spaces({_mazeSpaces.Count})";
             Totalwalls.Content = $"Number of walls({225 -_mazeSpaces.Count})";
-
-            //var grid = (GridMaze)Grid;
 
             for (int i = 0; i < mazeRows; i++)
             {
@@ -60,7 +63,7 @@ namespace Maze
             }
             LoadStartUp();
         }
-        void LoadStartUp()
+       void LoadStartUp()
         {
             explorer = new Label();
             explorer.Name = "explorer";
@@ -73,6 +76,9 @@ namespace Maze
             GridMaze.Children.Add(explorer);
             exploraCoord.Content = $" Row coordinate {explorerRow} Col coordinate {explorerCol}";
             _recordMoves.Add(new MazeColRow { Row = explorerRow, Col = explorerCol });
+
+           // await using FileStream createStream = File.Create(@"mazedata.json");
+           // await JsonSerializer.SerializeAsync(createStream, _mazeSpaces);
         }
        
         void Move(int explorerRow, int explorerCol)
@@ -197,6 +203,13 @@ namespace Maze
         private void PlayForword_Click(object sender, RoutedEventArgs e)
         {
             route();
+        }
+        private List<MazeColRow> LoadMazeJson()
+        {
+            var mazedata = File.OpenRead("mazedata.json");
+            var mazeList = JsonSerializer.Deserialize<List<MazeColRow>>(mazedata);
+            return mazeList;
+
         }
     }
 }
